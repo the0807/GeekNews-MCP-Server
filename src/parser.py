@@ -294,7 +294,7 @@ class ArticleParser:
             if desc_text and desc_text not in content_parts:
                 content_parts.append(desc_text)
         
-        # 3. topics 요소에서 내용 추출 (첫 번째 형태: div.topics > div.topic_row)
+        # 3. topics 요소에서 URL 정보만 추출 (첫 번째 형태: div.topics > div.topic_row)
         topic_elements = soup.select("div.topics div.topic_row")
         for topic in topic_elements:
             try:
@@ -308,9 +308,6 @@ class ArticleParser:
                     if topic_url and not topic_url.startswith(("http://", "https://")):
                         topic_url = urljoin(self.base_url, topic_url)
                     
-                    # 내용 추가
-                    content_parts.append(f"- {topic_title}")
-                    
                     # URL 정보를 items에 추가
                     if not any(existing.get("url") == topic_url for existing in items):
                         items.append({
@@ -321,7 +318,7 @@ class ArticleParser:
             except Exception as e:
                 logger.error(f"주간 뉴스 토픽 파싱 중 오류 발생: {e}", exc_info=True)
         
-        # 4. topics 요소에서 내용 추출 (두 번째 형태: div.topics > ul > li)
+        # 4. topics 요소에서 URL 정보만 추출 (두 번째 형태: div.topics > ul > li)
         if not topic_elements:
             topic_list_items = soup.select("div.topics ul li")
             for item in topic_list_items:
@@ -337,17 +334,6 @@ class ArticleParser:
                     # URL이 상대 경로인 경우 절대 경로로 변환
                     if topic_url and not topic_url.startswith(("http://", "https://")):
                         topic_url = urljoin(self.base_url, topic_url)
-                    
-                    # 내용 추출
-                    content_element = item.select_one("div.content")
-                    topic_content = ""
-                    if content_element:
-                        topic_content = content_element.get_text(separator=" ", strip=True)
-                    
-                    # 내용 추가
-                    content_parts.append(f"- {topic_title}")
-                    if topic_content:
-                        content_parts.append(f"  {topic_content}")
                     
                     # URL 정보를 items에 추가
                     if not any(existing.get("url") == topic_url for existing in items):
