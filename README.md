@@ -8,9 +8,16 @@
 ![tools](img/tools.png)
 ![example](img/example.png)
 
+### 도구 (Tools)
+
 - `get_articles` 도구: GeekNews에서 아티클을 가져오는 기능
   - 아티클 유형(top, new, ask, show)과 반환할 아티클 수를 지정할 수 있음
   - 각 응답에는 제목, URL, 포인트, 작성자, 시간, 댓글 수, 순위 정보가 포함됨
+
+### 프롬프트 (Prompts)
+
+- `geeknews-articles` 프롬프트: GeekNews 아티클 정보에 URL을 포함하는 기능
+  - 응답에는 각 아티클의 제목, URL, 간단한 설명이 포함됨
 
 ## 사용법
 
