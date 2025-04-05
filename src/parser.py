@@ -287,136 +287,52 @@ class ArticleParser:
         
         # 1. 메타 설명은 제외 (사용자 요청에 따라)
         
-        # 2. 설명 요소에서 내용 추출
+        # 2. 설명 요소에서 내용 추출 및 링크 추출
         desc_element = soup.select_one("div.desc")
         if desc_element:
+            # 내용 추출
             desc_text = desc_element.get_text(separator=" ", strip=True)
             if desc_text and desc_text not in content_parts:
                 content_parts.append(desc_text)
-        
-        # 3. topics 요소에서 URL 정보만 추출 (첫 번째 형태: div.topics > div.topic_row)
-        topic_elements = soup.select("div.topics div.topic_row")
-        for topic in topic_elements:
-            try:
-                # 제목 추출
-                title_element = topic.select_one("div.topictitle a")
-                if title_element:
-                    topic_title = title_element.text.strip()
-                    topic_url = title_element.get("href", "")
-                    
-                    # URL이 상대 경로인 경우 절대 경로로 변환
-                    if topic_url and not topic_url.startswith(("http://", "https://")):
-                        topic_url = urljoin(self.base_url, topic_url)
-                    
-                    # URL 정보를 items에 추가
-                    if not any(existing.get("url") == topic_url for existing in items):
-                        items.append({
-                            "title": topic_title,
-                            "url": topic_url,
-                            "rank": len(items) + 1
-                        })
-            except Exception as e:
-                logger.error(f"주간 뉴스 토픽 파싱 중 오류 발생: {e}", exc_info=True)
-        
-        # 4. topics 요소에서 URL 정보만 추출 (두 번째 형태: div.topics > ul > li)
-        if not topic_elements:
-            topic_list_items = soup.select("div.topics ul li")
-            for item in topic_list_items:
+            
+            # 링크 추출
+            links = desc_element.select("a")
+            for i, link in enumerate(links):
                 try:
-                    # 제목과 URL 추출
-                    link_element = item.select_one("a.link.bold")
-                    if not link_element:
+                    link_title = link.text.strip()
+                    link_url = link.get("href", "")
+                    
+                    # 빈 제목이나 URL이 없는 경우 건너뛰기
+                    if not link_title or not link_url:
                         continue
                     
-                    topic_title = link_element.text.strip()
-                    topic_url = link_element.get("href", "")
-                    
                     # URL이 상대 경로인 경우 절대 경로로 변환
-                    if topic_url and not topic_url.startswith(("http://", "https://")):
-                        topic_url = urljoin(self.base_url, topic_url)
+                    if link_url and not link_url.startswith(("http://", "https://")):
+                        link_url = urljoin(self.base_url, link_url)
                     
                     # URL 정보를 items에 추가
-                    if not any(existing.get("url") == topic_url for existing in items):
+                    if not any(existing.get("url") == link_url for existing in items):
                         items.append({
-                            "title": topic_title,
-                            "url": topic_url,
-                            "rank": len(items) + 1
+                            "title": link_title,
+                            "url": link_url,
+                            "rank": i + 1
                         })
                 except Exception as e:
-                    logger.error(f"주간 뉴스 토픽 리스트 아이템 파싱 중 오류 발생: {e}", exc_info=True)
+                    logger.error(f"주간 뉴스 링크 파싱 중 오류 발생: {e}", exc_info=True)
+        
+        # 3. topics 요소에서 URL 정보 추출 코드 제거 (사용자 요청에 따라)
+        topic_elements = soup.select("div.topics div.topic_row")
+        
+        # 4. topics 요소에서 URL 정보 추출 코드 제거 (사용자 요청에 따라)
         
         # 모든 내용을 하나의 문자열로 결합
         full_content = "\n\n".join(content_parts)
         
-        # 주간 뉴스 상세 페이지인 경우
-        if soup.select_one("div.weekly-container h2.tacenter"):
-            # 본문에서 링크 추출
-            article_elements = soup.select("div.desc a")
-            
-            for i, item in enumerate(article_elements):
-                try:
-                    item_title = item.text.strip()
-                    item_url = item.get("href", "")
-                    
-                    # 빈 제목이나 URL이 없는 경우 건너뛰기
-                    if not item_title or not item_url:
-                        continue
-                    
-                    # URL이 상대 경로인 경우 절대 경로로 변환
-                    if item_url and not item_url.startswith(("http://", "https://")):
-                        item_url = urljoin(self.base_url, item_url)
-                    
-                    # 중복 아이템 방지
-                    if not any(existing.get("url") == item_url for existing in items):
-                        items.append({
-                            "title": item_title,
-                            "url": item_url,
-                            "rank": i + 1
-                        })
-                except Exception as e:
-                    logger.error(f"주간 뉴스 아이템 파싱 중 오류 발생: {e}", exc_info=True)
-        
-        # 주간 뉴스 목록 페이지인 경우
-        else:
-            weekly_items = soup.select("div.weekly a.u")
-            
-            for i, item in enumerate(weekly_items):
-                try:
-                    item_title = item.text.strip()
-                    item_url = item.get("href", "")
-                    
-                    # URL이 상대 경로인 경우 절대 경로로 변환
-                    if item_url and not item_url.startswith(("http://", "https://")):
-                        item_url = urljoin(self.base_url, item_url)
-                    
-                    items.append({
-                        "title": item_title,
-                        "url": item_url,
-                        "rank": i + 1
-                    })
-                except Exception as e:
-                    logger.error(f"주간 뉴스 아이템 파싱 중 오류 발생: {e}", exc_info=True)
+        # 주간 뉴스 상세 페이지와 목록 페이지에서 URL 정보를 추출하는 코드 제거 (사용자 요청에 따라)
         
         # 아이템 제한 제거
         
-        # content에서 URL 정보를 추출하여 items에 추가
-        content_lines = full_content.split('\n')
-        for line in content_lines:
-            line = line.strip()
-            # "- 제목" 형식의 라인에서 제목 추출
-            if line.startswith('- '):
-                title = line[2:].strip()
-                # 내용에서 URL을 찾을 수 없으므로 제목으로 검색
-                # 로그에서 보이는 제목들을 items에 추가
-                if title and not any(item.get('title') == title for item in items):
-                    # 제목에 해당하는 URL을 찾을 수 없으므로 임의의 URL 생성
-                    # 실제로는 이 URL이 유효하지 않을 수 있음
-                    url = f"https://news.hada.io/search?q={title.replace(' ', '+')}"
-                    items.append({
-                        "title": title,
-                        "url": url,
-                        "rank": len(items) + 1
-                    })
+        # content에서 URL 정보를 추출하는 코드 제거 (사용자 요청에 따라)
         
         return WeeklyNews(
             title=title,
