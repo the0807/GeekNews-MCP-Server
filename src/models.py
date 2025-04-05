@@ -6,7 +6,7 @@ GeekNews MCP 서버 데이터 모델
 """
 
 from dataclasses import dataclass, asdict
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -35,3 +35,27 @@ class Article:
         # comment_count를 commentCount로 변환 (카멜 케이스 변환)
         result["commentCount"] = result.pop("comment_count")
         return result
+
+
+@dataclass
+class WeeklyNews:
+    """
+    GeekNews 주간 뉴스 클래스
+    
+    주간 뉴스의 제목, 번호, ID, 내용, URL 등의 정보를 저장합니다.
+    """
+    title: str
+    number: int
+    id: str
+    content: str
+    url: str
+    items: List[Dict[str, Any]]
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        주간 뉴스를 딕셔너리로 변환
+        
+        Returns:
+            Dict[str, Any]: 주간 뉴스 정보를 담은 딕셔너리
+        """
+        return asdict(self)

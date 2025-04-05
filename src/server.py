@@ -13,7 +13,7 @@ from mcp.server.fastmcp import FastMCP
 
 from src.client import GeekNewsClient
 from src.config import BASE_URL, DEFAULT_ARTICLE_LIMIT, MAX_ARTICLES, VALID_ARTICLE_TYPES, logger
-from src.models import Article
+from src.models import Article, WeeklyNews
 from src.parser import ArticleParser
 
 
@@ -53,6 +53,7 @@ class GeekNewsServer:
         MCP 도구를 설정합니다.
         """
         self._setup_get_articles_tool()
+        self._setup_get_weekly_news_tool()
     
     def _setup_get_articles_tool(self) -> None:
         """
@@ -74,6 +75,53 @@ class GeekNewsServer:
                 ValueError: 유효하지 않은 아티클 유형이 지정된 경우
             """
             return self._get_articles(type, limit)
+    
+    def _setup_get_weekly_news_tool(self) -> None:
+        """
+        get_weekly_news 도구를 설정합니다.
+        """
+        @self.mcp.tool()
+        def get_weekly_news(weekly_id: str = "") -> Dict[str, Any]:
+            """
+            GeekNews에서 주간 뉴스를 가져오는 도구
+            
+            Args:
+                weekly_id: 주간 뉴스 ID (빈 문자열인 경우 가장 최근 주간 뉴스를 가져옴)
+                
+            Returns:
+                Dict[str, Any]: 주간 뉴스 정보
+            """
+            return self._get_weekly_news(weekly_id)
+    
+    def _get_weekly_news(self, weekly_id: str = "") -> Dict[str, Any]:
+        """
+        GeekNews에서 주간 뉴스를 가져옵니다.
+        
+        Args:
+            weekly_id: 주간 뉴스 ID (빈 문자열인 경우 가장 최근 주간 뉴스를 가져옴)
+            
+        Returns:
+            Dict[str, Any]: 주간 뉴스 정보
+        """
+        try:
+            # HTML 가져오기
+            html = self.client.fetch_weekly_news(weekly_id)
+            
+            # 주간 뉴스 파싱
+            weekly_news = self.parser.parse_weekly_news(html)
+            
+            # 결과 반환
+            return weekly_news.to_dict()
+        except Exception as e:
+            logger.error(f"주간 뉴스 가져오기 실패: {e}", exc_info=True)
+            return {
+                "title": "GeekNews Weekly",
+                "number": 0,
+                "id": weekly_id if weekly_id else "",
+                "content": "주간 뉴스를 가져오는 중 오류가 발생했습니다.",
+                "url": f"{self.client.base_url}/weekly" + (f"/{weekly_id}" if weekly_id else ""),
+                "items": []
+            }
     
     def _get_articles(self, type: str, limit: int) -> List[Dict[str, Any]]:
         """
