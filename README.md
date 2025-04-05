@@ -2,14 +2,14 @@
 
 [![smithery badge](https://smithery.ai/badge/@the0807/geeknews-mcp-server)](https://smithery.ai/server/@the0807/geeknews-mcp-server)
 
-이 프로젝트는 [GeekNews](https://news.hada.io)에서 스토리를 가져오는 Model Context Protocol(MCP) 서버입니다. Python으로 구현되었으며, BeautifulSoup을 사용하여 웹 스크래핑을 수행합니다.
+이 프로젝트는 [GeekNews](https://news.hada.io)에서 아티클을 가져오는 Model Context Protocol(MCP) 서버입니다. Python으로 구현되었으며, BeautifulSoup을 사용하여 웹 스크래핑을 수행합니다.
 
 ## 기능
 ![tools](img/tools.png)
 ![example](img/example.png)
 
-- `get_stories` 도구: GeekNews에서 스토리를 가져오는 기능
-  - 스토리 유형(top, new, ask, show)과 반환할 스토리 수를 지정할 수 있음
+- `get_articles` 도구: GeekNews에서 아티클을 가져오는 기능
+  - 아티클 유형(top, new, ask, show)과 반환할 아티클 수를 지정할 수 있음
   - 각 응답에는 제목, URL, 포인트, 작성자, 시간, 댓글 수, 순위 정보가 포함됨
 
 ## 사용법
@@ -71,8 +71,8 @@
 
 ## 코드 구조
 
-- `src/models.py`: 스토리 정보를 저장하는 데이터 클래스 정의
-- `src/parser.py`: GeekNews 웹사이트의 HTML을 파싱하여 스토리 정보를 추출
+- `src/models.py`: 아티클 정보를 저장하는 데이터 클래스 정의
+- `src/parser.py`: GeekNews 웹사이트의 HTML을 파싱하여 아티클 정보를 추출
 - `src/client.py`: GeekNews 웹사이트에서 데이터를 가져오는 HTTP 클라이언트
 - `src/config.py`: 설정과 상수 정의
 - `src/server.py`: MCP 서버 구현

@@ -2,7 +2,7 @@
 """
 GeekNews 파서
 
-이 모듈은 GeekNews 웹사이트의 HTML을 파싱하여 스토리 정보를 추출하는 기능을 제공합니다.
+이 모듈은 GeekNews 웹사이트의 HTML을 파싱하여 아티클 정보를 추출하는 기능을 제공합니다.
 """
 
 import re
@@ -12,59 +12,59 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup, Tag
 
 from src.config import BASE_URL, logger
-from src.models import Story
+from src.models import Article
 
 
-class StoryParser:
+class ArticleParser:
     """
-    GeekNews 스토리 파서 클래스
+    GeekNews 아티클 파서 클래스
     
-    GeekNews 웹사이트의 HTML을 파싱하여 스토리 정보를 추출합니다.
+    GeekNews 웹사이트의 HTML을 파싱하여 아티클 정보를 추출합니다.
     """
     
     def __init__(self, base_url: str = BASE_URL):
         """
-        StoryParser 초기화
+        ArticleParser 초기화
         
         Args:
             base_url: GeekNews 웹사이트 기본 URL
         """
         self.base_url = base_url
     
-    def parse_stories(self, html: str) -> List[Story]:
+    def parse_articles(self, html: str) -> List[Article]:
         """
-        HTML에서 스토리 정보를 파싱합니다.
+        HTML에서 아티클 정보를 파싱합니다.
         
         Args:
             html: 파싱할 HTML
             
         Returns:
-            List[Story]: 파싱된 스토리 목록
+            List[Article]: 파싱된 아티클 목록
         """
         soup = BeautifulSoup(html, "html.parser")
-        stories = []
+        articles = []
         
         # topic_row 클래스를 가진 div 요소가 각 뉴스 항목을 나타냄
         for i, item in enumerate(soup.select("div.topic_row")):
             try:
-                story = self._parse_story_item(item, i)
-                if story:
-                    stories.append(story)
+                article = self._parse_article_item(item, i)
+                if article:
+                    articles.append(article)
             except Exception as e:
-                logger.error(f"스토리 파싱 중 오류 발생: {e}", exc_info=True)
+                logger.error(f"아티클 파싱 중 오류 발생: {e}", exc_info=True)
         
-        return stories
+        return articles
     
-    def _parse_story_item(self, item: Tag, index: int) -> Optional[Story]:
+    def _parse_article_item(self, item: Tag, index: int) -> Optional[Article]:
         """
-        개별 스토리 항목을 파싱합니다.
+        개별 아티클 항목을 파싱합니다.
         
         Args:
             item: 파싱할 HTML 요소
             index: 항목 인덱스
             
         Returns:
-            Optional[Story]: 파싱된 스토리 또는 None
+            Optional[Article]: 파싱된 아티클 또는 None
         """
         # 순위 번호 추출
         rank = self._extract_rank(item, index)
@@ -77,7 +77,7 @@ class StoryParser:
         # 메타데이터 추출
         points, author, time, comment_count = self._extract_metadata(item)
         
-        return Story(
+        return Article(
             title=title,
             url=url,
             points=points,

@@ -2,7 +2,7 @@
 """
 GeekNews MCP 서버
 
-이 모듈은 GeekNews 웹사이트에서 스토리를 가져오는 MCP 서버를 구현합니다.
+이 모듈은 GeekNews 웹사이트에서 아티클을 가져오는 MCP 서버를 구현합니다.
 """
 
 import signal
@@ -12,16 +12,16 @@ from typing import Any, Dict, List, Optional
 from mcp.server.fastmcp import FastMCP
 
 from src.client import GeekNewsClient
-from src.config import BASE_URL, DEFAULT_STORY_LIMIT, MAX_STORIES, VALID_STORY_TYPES, logger
-from src.models import Story
-from src.parser import StoryParser
+from src.config import BASE_URL, DEFAULT_ARTICLE_LIMIT, MAX_ARTICLES, VALID_ARTICLE_TYPES, logger
+from src.models import Article
+from src.parser import ArticleParser
 
 
 class GeekNewsServer:
     """
     GeekNews MCP 서버 클래스
     
-    GeekNews 웹사이트에서 스토리를 가져오는 MCP 서버를 구현합니다.
+    GeekNews 웹사이트에서 아티클을 가져오는 MCP 서버를 구현합니다.
     """
     
     def __init__(self, server_name: str = "geeknews-server", base_url: str = BASE_URL):
@@ -34,7 +34,7 @@ class GeekNewsServer:
         """
         self.mcp = FastMCP(server_name)
         self.client = GeekNewsClient(base_url)
-        self.parser = StoryParser(base_url)
+        self.parser = ArticleParser(base_url)
         self.setup_tools()
     
     def run(self) -> None:
@@ -52,61 +52,61 @@ class GeekNewsServer:
         """
         MCP 도구를 설정합니다.
         """
-        self._setup_get_stories_tool()
+        self._setup_get_articles_tool()
     
-    def _setup_get_stories_tool(self) -> None:
+    def _setup_get_articles_tool(self) -> None:
         """
-        get_stories 도구를 설정합니다.
+        get_articles 도구를 설정합니다.
         """
         @self.mcp.tool()
-        def get_stories(type: str = "top", limit: int = DEFAULT_STORY_LIMIT) -> List[Dict[str, Any]]:
+        def get_articles(type: str = "top", limit: int = DEFAULT_ARTICLE_LIMIT) -> List[Dict[str, Any]]:
             """
-            GeekNews에서 스토리를 가져오는 도구
+            GeekNews에서 아티클을 가져오는 도구
             
             Args:
-                type: 스토리 유형 (top, new, ask, show)
-                limit: 반환할 스토리 수 (최대 30)
+                type: 아티클 유형 (top, new, ask, show)
+                limit: 반환할 아티클 수 (최대 30)
             
             Returns:
-                List[Dict[str, Any]]: 스토리 목록
+                List[Dict[str, Any]]: 아티클 목록
                 
             Raises:
-                ValueError: 유효하지 않은 스토리 유형이 지정된 경우
+                ValueError: 유효하지 않은 아티클 유형이 지정된 경우
             """
-            return self._get_stories(type, limit)
+            return self._get_articles(type, limit)
     
-    def _get_stories(self, type: str, limit: int) -> List[Dict[str, Any]]:
+    def _get_articles(self, type: str, limit: int) -> List[Dict[str, Any]]:
         """
-        GeekNews에서 스토리를 가져옵니다.
+        GeekNews에서 아티클을 가져옵니다.
         
         Args:
-            type: 스토리 유형 (top, new, ask, show)
-            limit: 반환할 스토리 수 (최대 30)
+            type: 아티클 유형 (top, new, ask, show)
+            limit: 반환할 아티클 수 (최대 30)
         
         Returns:
-            List[Dict[str, Any]]: 스토리 목록
+            List[Dict[str, Any]]: 아티클 목록
         """
         # 입력 유효성 검사
-        if type not in VALID_STORY_TYPES:
+        if type not in VALID_ARTICLE_TYPES:
             raise ValueError(
-                f"유효하지 않은 스토리 유형: {type}. "
-                f"다음 중 하나여야 합니다: {', '.join(VALID_STORY_TYPES)}"
+                f"유효하지 않은 아티클 유형: {type}. "
+                f"다음 중 하나여야 합니다: {', '.join(VALID_ARTICLE_TYPES)}"
             )
         
-        # 스토리 수 제한
-        limit = max(1, min(limit, MAX_STORIES))
+        # 아티클 수 제한
+        limit = max(1, min(limit, MAX_ARTICLES))
         
         try:
             # HTML 가져오기
-            html = self.client.fetch_stories(type)
+            html = self.client.fetch_articles(type)
             
-            # 스토리 파싱
-            stories = self.parser.parse_stories(html)
+            # 아티클 파싱
+            articles = self.parser.parse_articles(html)
             
             # 결과 반환
-            return [story.to_dict() for story in stories[:limit]]
+            return [article.to_dict() for article in articles[:limit]]
         except Exception as e:
-            logger.error(f"스토리 가져오기 실패: {e}", exc_info=True)
+            logger.error(f"아티클 가져오기 실패: {e}", exc_info=True)
             return []
 
 

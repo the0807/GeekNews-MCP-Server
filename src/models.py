@@ -10,11 +10,11 @@ from typing import Any, Dict, Optional
 
 
 @dataclass
-class Story:
+class Article:
     """
-    GeekNews 스토리 클래스
+    GeekNews 아티클 클래스
     
-    스토리의 제목, URL, 포인트, 작성자, 시간, 댓글 수, 순위 등의 정보를 저장합니다.
+    아티클의 제목, URL, 포인트, 작성자, 시간, 댓글 수, 순위 등의 정보를 저장합니다.
     """
     title: str
     url: Optional[str]
@@ -26,10 +26,10 @@ class Story:
     
     def to_dict(self) -> Dict[str, Any]:
         """
-        스토리를 딕셔너리로 변환
+        아티클을 딕셔너리로 변환
         
         Returns:
-            Dict[str, Any]: 스토리 정보를 담은 딕셔너리
+            Dict[str, Any]: 아티클 정보를 담은 딕셔너리
         """
         result = asdict(self)
         # comment_count를 commentCount로 변환 (카멜 케이스 변환)

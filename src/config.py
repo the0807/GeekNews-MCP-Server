@@ -11,12 +11,12 @@ import sys
 # 기본 URL
 BASE_URL = "https://news.hada.io"
 
-# 유효한 스토리 유형
-VALID_STORY_TYPES = ["top", "new", "ask", "show"]
+# 유효한 아티클 유형
+VALID_ARTICLE_TYPES = ["top", "new", "ask", "show"]
 
-# 스토리 관련 상수
-MAX_STORIES = 30
-DEFAULT_STORY_LIMIT = 10
+# 아티클 관련 상수
+MAX_ARTICLES = 30
+DEFAULT_ARTICLE_LIMIT = 10
 
 # 네트워크 요청 관련 상수
 REQUEST_TIMEOUT = 10  # 초
