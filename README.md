@@ -5,8 +5,9 @@
 이 프로젝트는 [GeekNews](https://news.hada.io)에서 아티클을 가져오는 Model Context Protocol(MCP) 서버입니다. Python으로 구현되었으며, BeautifulSoup을 사용하여 웹 스크래핑을 수행합니다.
 
 ## 기능
-![tools](img/tools.png)
-![example](img/example.png)
+|![tool1](img/tool1.png)    |![tool2](img/tool2.png)    |
+|:-------------------------:|:-------------------------:|
+|![example](img/example1.png)|![example](img/example2.png)|
 
 ### 도구 (Tools)
 
@@ -18,9 +19,6 @@
   - 특정 주간 뉴스 ID를 지정하거나 가장 최근 주간 뉴스를 가져올 수 있음
   - 주간 뉴스의 제목, 번호, ID, 내용, URL, 아이템 목록 등의 정보를 제공
   - 각 아이템에는 제목, URL, 순위 정보가 포함됨
-  - 주간 뉴스의 모든 내용(소개, 아티클 목록, 내용)을 하나의 `content` 필드에 통합하여 제공
-  - 두 가지 형태의 주간 뉴스 페이지(목록형, 상세형) 모두 파싱 가능
-  - 각 아티클의 제목, URL, 내용이 포함된 풍부한 텍스트 형식으로 제공
 
 ## 사용법
 
