@@ -6,7 +6,9 @@ GeekNews MCP 서버 설정
 """
 
 import logging
+import os
 import sys
+from pathlib import Path
 
 # 기본 URL
 BASE_URL = "https://news.hada.io"
@@ -21,6 +23,13 @@ DEFAULT_ARTICLE_LIMIT = 10
 # 네트워크 요청 관련 상수
 REQUEST_TIMEOUT = 10  # 초
 
+# 캐시 관련 설정
+CACHE_DIR = os.path.join(os.path.expanduser("~"), ".cache", "geeknews-mcp")
+CACHE_EXPIRY_SECONDS = 24 * 60 * 60  # 24시간 (하루)
+
+# 스케줄러 관련 설정
+SCHEDULER_INTERVAL_SECONDS = 60 * 60  # 1시간마다 캐시 유효성 검사
+
 # 로깅 설정
 def setup_logging(level=logging.WARNING):
     """
@@ -34,7 +43,7 @@ def setup_logging(level=logging.WARNING):
     """
     logging.basicConfig(
         level=level,
-        format='%(levelname)s: %(message)s',
+        format='%(asctime)s - %(levelname)s: %(message)s',
         handlers=[
             logging.StreamHandler(sys.stderr)
         ]
